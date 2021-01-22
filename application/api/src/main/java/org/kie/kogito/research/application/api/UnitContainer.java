@@ -1,7 +1,7 @@
 package org.kie.kogito.research.application.api;
 
 public interface UnitContainer {
-    Unit get(Class<? extends Context> unit);
+    Unit get(UnitId unitId);
 
     void send(Event event);
 }

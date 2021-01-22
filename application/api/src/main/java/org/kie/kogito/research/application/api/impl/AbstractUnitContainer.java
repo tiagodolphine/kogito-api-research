@@ -8,9 +8,10 @@ import org.kie.kogito.research.application.api.Context;
 import org.kie.kogito.research.application.api.Event;
 import org.kie.kogito.research.application.api.Unit;
 import org.kie.kogito.research.application.api.UnitContainer;
+import org.kie.kogito.research.application.api.UnitId;
 
 public class AbstractUnitContainer<U extends Unit> implements UnitContainer {
-    private final Map<Class<?>, U> units = new HashMap<>();
+    private final Map<UnitId, U> units = new HashMap<>();
     private final Application app;
 
     public AbstractUnitContainer(Application app) {
@@ -18,12 +19,12 @@ public class AbstractUnitContainer<U extends Unit> implements UnitContainer {
     }
 
     protected <T extends U> void register(T unit) {
-        units.put(unit.getClass(), unit);
+        units.put(unit.id(), unit);
     }
 
     @Override
-    public U get(Class<? extends Context> unit) {
-        return units.get(unit);
+    public U get(UnitId unitId) {
+        return units.get(unitId);
     }
 
     @Override

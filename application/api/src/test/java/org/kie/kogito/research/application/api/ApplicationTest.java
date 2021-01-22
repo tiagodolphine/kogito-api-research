@@ -15,17 +15,18 @@ class ApplicationTest {
         Application app = new MyApplication();
 
         MyUnitContainer myUnitContainer = app.get(MyUnitContainer.class);
-        MyUnit myContextUnit = myUnitContainer.get(MyContext.class);
+        MyUnit myContextUnit = myUnitContainer.get(MyUnit.ID);
         MyUnitInstance instance = myContextUnit.createInstance(new MyContext());
 
         AnotherUnitContainer anotherUnitContainer = app.get(AnotherUnitContainer.class);
-        AnotherUnit anotherMyContextUnit = anotherUnitContainer.get(MyContext.class);
+        AnotherUnit anotherMyContextUnit = anotherUnitContainer.get(ClassUnitId.of(AnotherUnit.class));
         AnotherUnitInstance anotherInstance = anotherMyContextUnit.createInstance(new MyContext());
 
     }
     static class MyContext implements Context {}
 
     static class MyApplication extends AbstractApplication {{
+        register(new MyUnitContainer(this));
         register(new AnotherUnitContainer(this));
 
     }}
@@ -37,8 +38,9 @@ class ApplicationTest {
 
     }
     static class MyUnit extends AbstractUnit<MyUnitInstance> {
+        public static final UnitId ID = new SimpleUnitId();
         public MyUnit() {
-            super(new SimpleUnitId());
+            super(ID);
         }
         public MyUnitInstance createInstance(Context ctx) {
             return register(new MyUnitInstance(this));
@@ -60,8 +62,10 @@ class ApplicationTest {
     }
 
     static class AnotherUnit extends AbstractUnit<AnotherUnitInstance> {
+        public static final UnitId ID = ClassUnitId.of(AnotherUnit.class);
+
         public AnotherUnit() {
-            super(new SimpleUnitId());
+            super(ID);
         }
         public AnotherUnitInstance createInstance(Context ctx) {
             return register(new AnotherUnitInstance(this));
