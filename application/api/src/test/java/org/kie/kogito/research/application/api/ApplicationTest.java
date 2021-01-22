@@ -57,14 +57,14 @@ class ApplicationTest {
     static class MyUnitContainer extends AbstractUnitContainer<MyUnit> {
         MyUnitContainer(Application app) {
             super(app);
-            register(new MyUnit());
+            register(new MyUnit(this));
         }
 
     }
     static class MyUnit extends AbstractUnit<MyUnitInstance> {
         public static final UnitId ID = new SimpleUnitId();
-        public MyUnit() {
-            super(ID);
+        public MyUnit(MyUnitContainer container) {
+            super(container, ID);
         }
         public MyUnitInstance createInstance(Context ctx) {
             return register(new MyUnitInstance(this, ctx));
@@ -81,15 +81,15 @@ class ApplicationTest {
     static class AnotherUnitContainer extends AbstractUnitContainer<AnotherUnit> {
         AnotherUnitContainer(Application app) {
             super(app);
-            register(new AnotherUnit());
+            register(new AnotherUnit(this));
         }
     }
 
     static class AnotherUnit extends AbstractUnit<AnotherUnitInstance> {
         public static final UnitId ID = ClassUnitId.of(AnotherUnit.class);
 
-        public AnotherUnit() {
-            super(ID);
+        public AnotherUnit(AnotherUnitContainer container) {
+            super(container, ID);
         }
         public AnotherUnitInstance createInstance(Context ctx) {
             return register(new AnotherUnitInstance(this, ctx));
