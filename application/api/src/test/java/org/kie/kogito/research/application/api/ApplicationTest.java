@@ -1,54 +1,77 @@
 package org.kie.kogito.research.application.api;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.junit.jupiter.api.Test;
+import org.kie.kogito.research.application.api.impl.AbstractApplication;
+import org.kie.kogito.research.application.api.impl.AbstractUnit;
+import org.kie.kogito.research.application.api.impl.AbstractUnitContainer;
+import org.kie.kogito.research.application.api.impl.AbstractUnitInstance;
+import org.kie.kogito.research.application.api.impl.SimpleUnitId;
+import org.kie.kogito.research.application.api.impl.SimpleUnitInstanceId;
 
 class ApplicationTest {
 
     @Test
     public void test() {
         Application app = new MyApplication();
+
         MyUnitContainer myUnitContainer = app.get(MyUnitContainer.class);
-        MyUnit<MyContext> myContextUnit = myUnitContainer.get(MyContext.class);
-        MyUnitInstance<MyContext> instance = myContextUnit.createInstance(new MyContext());
-        instance.start();
-    }
+        MyUnit myContextUnit = myUnitContainer.get(MyContext.class);
+        MyUnitInstance instance = myContextUnit.createInstance(new MyContext());
 
-    static class MyApplication implements Application {
+        AnotherUnitContainer anotherUnitContainer = app.get(AnotherUnitContainer.class);
+        AnotherUnit anotherMyContextUnit = anotherUnitContainer.get(MyContext.class);
+        AnotherUnitInstance anotherInstance = anotherMyContextUnit.createInstance(new MyContext());
 
-        Map<Class<?>, Object> containers = new HashMap<>();
-        {
-            containers.put(MyUnitContainer.class, new MyUnitContainer());
-        }
-
-        @Override
-        public <T extends UnitContainer> T get(Class<T> ctr) {
-            return (T) containers.get(ctr);
-        }
-    }
-
-
-    static class MyUnit<C extends Context> implements Unit<C> {
-        public MyUnitInstance<C> createInstance(C ctx) {
-            return new MyUnitInstance<C>();
-        }
-    }
-
-    static class MyUnitInstance<C extends Context> implements UnitInstance<C> {
-        public void start() {}
-        public void stop() {}
-        public void send(Event msg) {}
-    }
-
-    static class MyUnitContainer implements UnitContainer {
-
-        @Override
-        public <C extends Context> MyUnit<C> get(Class<C> unit) {
-            return new MyUnit<>();
-        }
     }
     static class MyContext implements Context {}
+
+    static class MyApplication extends AbstractApplication {{
+        register(new AnotherUnitContainer(this));
+
+    }}
+    static class MyUnitContainer extends AbstractUnitContainer<MyUnit> {
+        MyUnitContainer(Application app) {
+            super(app);
+            register(new MyUnit());
+        }
+
+    }
+    static class MyUnit extends AbstractUnit<MyUnitInstance> {
+        public MyUnit() {
+            super(new SimpleUnitId());
+        }
+        public MyUnitInstance createInstance(Context ctx) {
+            return register(new MyUnitInstance(this));
+        }
+
+    }
+    static class MyUnitInstance extends AbstractUnitInstance {
+        public MyUnitInstance(MyUnit myUnit) {
+            super(new SimpleUnitInstanceId(), myUnit);
+        }
+    }
+
+
+    static class AnotherUnitContainer extends AbstractUnitContainer<AnotherUnit> {
+        AnotherUnitContainer(Application app) {
+            super(app);
+            register(new AnotherUnit());
+        }
+    }
+
+    static class AnotherUnit extends AbstractUnit<AnotherUnitInstance> {
+        public AnotherUnit() {
+            super(new SimpleUnitId());
+        }
+        public AnotherUnitInstance createInstance(Context ctx) {
+            return register(new AnotherUnitInstance(this));
+        }
+    }
+
+    static class AnotherUnitInstance extends AbstractUnitInstance {
+        public AnotherUnitInstance(AnotherUnit myUnit) {
+            super(new SimpleUnitInstanceId(), myUnit);
+        }
+    }
 
 }
