@@ -29,6 +29,8 @@ public class AbstractUnitContainer<U extends Unit> implements UnitContainer {
 
     @Override
     public void send(Event event) {
-
+        for (U u : units.values()) {
+            u.send(event);
+        }
     }
 }

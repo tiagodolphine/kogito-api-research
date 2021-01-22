@@ -31,7 +31,11 @@ public abstract class AbstractUnit<U extends UnitInstance> implements Unit {
     @Override
     public void send(Event event) {
         for (UnitInstance instance : instances.values()) {
-            instance.send(event);
+            if (event.targetId() == null ||
+                    event.targetId().equals(this.id()) ||
+                    event.targetId() instanceof UnitInstanceId) {
+                instance.send(event);
+            }
         }
     }
 }

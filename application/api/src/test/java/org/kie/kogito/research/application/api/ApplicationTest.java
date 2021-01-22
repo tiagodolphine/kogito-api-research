@@ -5,8 +5,12 @@ import org.kie.kogito.research.application.api.impl.AbstractApplication;
 import org.kie.kogito.research.application.api.impl.AbstractUnit;
 import org.kie.kogito.research.application.api.impl.AbstractUnitContainer;
 import org.kie.kogito.research.application.api.impl.AbstractUnitInstance;
+import org.kie.kogito.research.application.api.impl.SimpleEvent;
 import org.kie.kogito.research.application.api.impl.SimpleUnitId;
 import org.kie.kogito.research.application.api.impl.SimpleUnitInstanceId;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ApplicationTest {
 
@@ -22,8 +26,28 @@ class ApplicationTest {
         AnotherUnit anotherMyContextUnit = anotherUnitContainer.get(ClassUnitId.of(AnotherUnit.class));
         AnotherUnitInstance anotherInstance = anotherMyContextUnit.createInstance(new MyContext());
 
+        MyContextWithExecutionModel ctx = new MyContextWithExecutionModel();
+        AnotherUnitInstance yetAnotherInstance = app.get(AnotherUnitContainer.class)
+                .get(ClassUnitId.of(AnotherUnit.class))
+                .createInstance(ctx);
+
+        assertFalse(ctx.gotMessage);
+        app.send(SimpleEvent.of(null, ClassUnitId.of(AnotherUnit.class), "Hello Message!"));
+        assertTrue(ctx.gotMessage);
+
+
     }
     static class MyContext implements Context {}
+
+    static class MyContextWithExecutionModel implements Context, ExecutionModel {
+
+        public boolean gotMessage = false;
+
+        @Override
+        public void onEvent(Event event) {
+            gotMessage = true;
+        }
+    }
 
     static class MyApplication extends AbstractApplication {{
         register(new MyUnitContainer(this));
@@ -43,13 +67,13 @@ class ApplicationTest {
             super(ID);
         }
         public MyUnitInstance createInstance(Context ctx) {
-            return register(new MyUnitInstance(this));
+            return register(new MyUnitInstance(this, ctx));
         }
 
     }
     static class MyUnitInstance extends AbstractUnitInstance {
-        public MyUnitInstance(MyUnit myUnit) {
-            super(new SimpleUnitInstanceId(), myUnit);
+        public MyUnitInstance(MyUnit myUnit, Context context) {
+            super(new SimpleUnitInstanceId(), myUnit, context);
         }
     }
 
@@ -68,13 +92,13 @@ class ApplicationTest {
             super(ID);
         }
         public AnotherUnitInstance createInstance(Context ctx) {
-            return register(new AnotherUnitInstance(this));
+            return register(new AnotherUnitInstance(this, ctx));
         }
     }
 
     static class AnotherUnitInstance extends AbstractUnitInstance {
-        public AnotherUnitInstance(AnotherUnit myUnit) {
-            super(new SimpleUnitInstanceId(), myUnit);
+        public AnotherUnitInstance(AnotherUnit myUnit, Context ctx) {
+            super(new SimpleUnitInstanceId(), myUnit, ctx);
         }
     }
 
