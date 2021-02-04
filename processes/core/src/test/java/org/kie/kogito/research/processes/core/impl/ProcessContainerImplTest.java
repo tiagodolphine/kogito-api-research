@@ -2,16 +2,14 @@ package org.kie.kogito.research.processes.core.impl;
 
 import io.smallrye.mutiny.operators.multi.processors.BroadcastProcessor;
 import org.junit.jupiter.api.Test;
-import org.kie.kogito.research.application.api.Context;
-import org.kie.kogito.research.application.api.Event;
-import org.kie.kogito.research.application.api.ExecutionModel;
-import org.kie.kogito.research.application.api.MessageBus;
+import org.kie.kogito.research.application.api.*;
 import org.kie.kogito.research.processes.api.ProcessEvent;
 
 import java.util.List;
 import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 class ProcessContainerImplTest {
 
@@ -21,6 +19,7 @@ class ProcessContainerImplTest {
         var aProcess = new ProcessImpl(processContainer, SimpleProcessId.fromString("a.process"));
         var anotherProcess = new ProcessImpl(processContainer, SimpleProcessId.fromString("another.process"));
         var thirdProcess = new ProcessImpl(processContainer, SimpleProcessId.fromString("third.process"));
+
         processContainer.register(List.of(
                 aProcess,
                 anotherProcess,
@@ -64,10 +63,12 @@ class ProcessContainerImplTest {
 
         class MyProcessVariables implements Context, ExecutionModel {
             String name;
+            Event event;
 
             @Override
             public void onEvent(Event event) {
                 System.out.println(name + ": Got event " + event);
+                this.event = event;
             }
         }
 
@@ -82,9 +83,12 @@ class ProcessContainerImplTest {
                 processContainer.get(SimpleProcessId.fromString("third.process"))
                         .createInstance(ctx2);
 
-        messageBus.send(
-                new SimpleProcessEvent(null, SimpleProcessId.fromString("a.process"), "Payload"));
 
+        var event = new SimpleProcessEvent(null, SimpleProcessId.fromString("a.process"), "Payload");
+        messageBus.send(event);
+
+        assertEquals(event, ctx1.event);
+        assertNull(ctx2.event);
 
     }
 }

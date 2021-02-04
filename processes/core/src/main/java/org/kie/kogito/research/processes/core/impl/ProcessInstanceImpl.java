@@ -1,8 +1,10 @@
 package org.kie.kogito.research.processes.core.impl;
 
-import org.kie.kogito.research.application.api.*;
+import org.kie.kogito.research.application.api.Context;
+import org.kie.kogito.research.application.api.Event;
+import org.kie.kogito.research.application.api.ExecutionModel;
+import org.kie.kogito.research.application.api.MessageBus;
 import org.kie.kogito.research.application.api.impl.AbstractUnitInstance;
-import org.kie.kogito.research.application.api.impl.LambdaMessageBus;
 import org.kie.kogito.research.processes.api.Process;
 import org.kie.kogito.research.processes.api.ProcessEvent;
 import org.kie.kogito.research.processes.api.ProcessInstance;
