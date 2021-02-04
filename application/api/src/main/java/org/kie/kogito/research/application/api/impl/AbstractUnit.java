@@ -3,13 +3,7 @@ package org.kie.kogito.research.application.api.impl;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.kie.kogito.research.application.api.Application;
-import org.kie.kogito.research.application.api.Event;
-import org.kie.kogito.research.application.api.Unit;
-import org.kie.kogito.research.application.api.UnitContainer;
-import org.kie.kogito.research.application.api.UnitId;
-import org.kie.kogito.research.application.api.UnitInstance;
-import org.kie.kogito.research.application.api.UnitInstanceId;
+import org.kie.kogito.research.application.api.*;
 
 public abstract class AbstractUnit<I extends UnitId, U extends UnitInstance> implements Unit {
 
@@ -38,12 +32,17 @@ public abstract class AbstractUnit<I extends UnitId, U extends UnitInstance> imp
     }
 
     @Override
+    public MessageBus<? extends Event> messageBus() {
+        return this::send;
+    }
+
     public void send(Event event) {
         for (UnitInstance instance : instances.values()) {
             if (event.targetId() == null ||
                     event.targetId().equals(this.id()) ||
                     event.targetId() instanceof UnitInstanceId) {
-                instance.send(event);
+                MessageBus<Event> messageBus = (MessageBus<Event>) instance.messageBus();
+                messageBus.send(event);
             }
         }
     }

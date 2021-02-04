@@ -1,11 +1,6 @@
 package org.kie.kogito.research.application.api.impl;
 
-import org.kie.kogito.research.application.api.Context;
-import org.kie.kogito.research.application.api.Event;
-import org.kie.kogito.research.application.api.ExecutionModel;
-import org.kie.kogito.research.application.api.Unit;
-import org.kie.kogito.research.application.api.UnitInstance;
-import org.kie.kogito.research.application.api.UnitInstanceId;
+import org.kie.kogito.research.application.api.*;
 
 public abstract class AbstractUnitInstance implements UnitInstance {
 
@@ -35,7 +30,11 @@ public abstract class AbstractUnitInstance implements UnitInstance {
     }
 
     @Override
-    public void send(Event event) {
+    public MessageBus<? extends Event> messageBus() {
+        return this::send;
+    }
+
+    protected void send(Event event) {
         if (context instanceof ExecutionModel) {
             ExecutionModel executionModel = (ExecutionModel) this.context;
             if (event.targetId() == null ||

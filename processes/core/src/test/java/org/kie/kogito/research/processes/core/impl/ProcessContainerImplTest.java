@@ -28,6 +28,32 @@ class ProcessContainerImplTest {
         var p = processContainer.get(SimpleProcessId.fromString("third.process"));
         assertEquals(thirdProcess, p);
         var instance = p.createInstance(new MyProcessVariables());
-        p.send();
+    }
+
+    @Test
+    public void messaging() {
+        var processContainer = new ProcessContainerImpl(null);
+        var aProcess = new ProcessImpl(processContainer, SimpleProcessId.fromString("a.process"));
+        var anotherProcess = new ProcessImpl(processContainer, SimpleProcessId.fromString("another.process"));
+        var thirdProcess = new ProcessImpl(processContainer, SimpleProcessId.fromString("third.process"));
+        processContainer.register(List.of(
+                aProcess,
+                anotherProcess,
+                thirdProcess
+        ));
+
+        class MyProcessVariables implements Context {
+            String name;
+        }
+
+        var a = processContainer.get(SimpleProcessId.fromString("a.process"))
+                .createInstance(new MyProcessVariables());
+        var third =
+                processContainer.get(SimpleProcessId.fromString("third.process"))
+                        .createInstance(new MyProcessVariables());
+
+
+
+
     }
 }

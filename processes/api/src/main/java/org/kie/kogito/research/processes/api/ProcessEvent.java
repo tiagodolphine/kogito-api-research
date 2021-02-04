@@ -1,4 +1,6 @@
 package org.kie.kogito.research.processes.api;
 
-public interface ProcessEvent {
+import org.kie.kogito.research.application.api.Event;
+
+public interface ProcessEvent extends Event {
 }

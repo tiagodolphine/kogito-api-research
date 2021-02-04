@@ -4,5 +4,5 @@ public interface Unit {
     Application application();
     UnitId id();
     UnitInstance createInstance(Context ctx);
-    void send(Event event);
+    MessageBus<? extends Event> messageBus();
 }
