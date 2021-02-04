@@ -15,6 +15,7 @@ public class ProcessInstanceImpl extends AbstractUnitInstance implements Process
         super(id, unit, context);
         if (context instanceof ExecutionModel) {
             this.executionModel = (ExecutionModel) context;
+            unit().messageBus().subscribe(this::receive);
         } else {
             this.executionModel = null;
         }
@@ -32,10 +33,10 @@ public class ProcessInstanceImpl extends AbstractUnitInstance implements Process
 
     @Override
     public MessageBus<ProcessEvent> messageBus() {
-        return new LambdaMessageBus<>(this::receive);
+        return (MessageBus<ProcessEvent>) unit().messageBus();
     }
 
-    protected void receive(ProcessEvent event) {
+    protected void receive(Event event) {
         if (executionModel == null) {
             return;
         }

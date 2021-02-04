@@ -18,6 +18,14 @@
       <artifactId>kogito-processes-api</artifactId>
       <version>${project.version}</version>
     </dependency>
+
+    <dependency>
+      <groupId>io.smallrye.reactive</groupId>
+      <artifactId>mutiny</artifactId>
+      <version>0.13.0</version>
+      <scope>test</scope>
+    </dependency>
+
   </dependencies>
 
 

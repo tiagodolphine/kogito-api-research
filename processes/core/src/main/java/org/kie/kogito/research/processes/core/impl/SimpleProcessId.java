@@ -31,4 +31,11 @@ public class SimpleProcessId implements ProcessId {
     public int hashCode() {
         return Objects.hash(value);
     }
+
+    @Override
+    public String toString() {
+        return "SimpleProcessId{" +
+                "'" + value + '\'' +
+                '}';
+    }
 }

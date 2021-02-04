@@ -16,4 +16,11 @@ public class LambdaMessageBus<T extends Event> implements MessageBus<T> {
     public void send(T event) {
         consumer.accept(event);
     }
+
+    @Override
+    public void subscribe(Consumer<T> consumer) {
+        //no op
+    }
+
+
 }

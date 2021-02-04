@@ -1,20 +1,29 @@
 package org.kie.kogito.research.processes.core.impl;
 
 import org.kie.kogito.research.application.api.Context;
+import org.kie.kogito.research.application.api.Event;
+import org.kie.kogito.research.application.api.MessageBus;
 import org.kie.kogito.research.application.api.impl.AbstractUnit;
+import org.kie.kogito.research.application.api.impl.LambdaMessageBus;
+import org.kie.kogito.research.processes.api.*;
 import org.kie.kogito.research.processes.api.Process;
-import org.kie.kogito.research.processes.api.ProcessContainer;
-import org.kie.kogito.research.processes.api.ProcessId;
-import org.kie.kogito.research.processes.api.ProcessInstance;
 
 public class ProcessImpl extends AbstractUnit<ProcessId, ProcessInstance> implements Process {
+    private final MessageBus<ProcessEvent> messageBus;
+
     public ProcessImpl(ProcessContainer container, ProcessId id) {
         super(container, id);
+        this.messageBus = new LambdaMessageBus<>(this::send);
+    }
+
+    public ProcessImpl(ProcessContainerImpl processContainer, SimpleProcessId id, MessageBus<ProcessEvent> messageBus) {
+        super(processContainer, id);
+        this.messageBus = messageBus;
     }
 
     @Override
-    public ProcessId id() {
-        return (ProcessId) super.id();
+    public MessageBus<? extends Event> messageBus() {
+        return this.messageBus;
     }
 
     @Override

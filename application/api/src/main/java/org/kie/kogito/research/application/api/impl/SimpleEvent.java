@@ -32,4 +32,13 @@ public class SimpleEvent implements Event {
     public Object payload() {
         return payload;
     }
+
+    @Override
+    public String toString() {
+        return "SimpleEvent{" +
+                "senderId=" + senderId +
+                ", targetId=" + targetId +
+                ", payload=" + payload +
+                '}';
+    }
 }
