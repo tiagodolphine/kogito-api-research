@@ -61,7 +61,7 @@ class ApplicationTest {
         }
 
     }
-    static class MyUnit extends AbstractUnit<MyUnitInstance> {
+    static class MyUnit extends AbstractUnit<UnitId, MyUnitInstance> {
         public static final UnitId ID = new SimpleUnitId();
         public MyUnit(MyUnitContainer container) {
             super(container, ID);
@@ -85,7 +85,7 @@ class ApplicationTest {
         }
     }
 
-    static class AnotherUnit extends AbstractUnit<AnotherUnitInstance> {
+    static class AnotherUnit extends AbstractUnit<UnitId, AnotherUnitInstance> {
         public static final UnitId ID = ClassUnitId.of(AnotherUnit.class);
 
         public AnotherUnit(AnotherUnitContainer container) {

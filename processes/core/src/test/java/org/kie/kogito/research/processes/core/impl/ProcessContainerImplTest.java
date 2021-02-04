@@ -28,5 +28,6 @@ class ProcessContainerImplTest {
         var p = processContainer.get(SimpleProcessId.fromString("third.process"));
         assertEquals(thirdProcess, p);
         var instance = p.createInstance(new MyProcessVariables());
+        p.send();
     }
 }

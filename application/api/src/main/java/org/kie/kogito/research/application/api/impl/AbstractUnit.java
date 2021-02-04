@@ -11,13 +11,13 @@ import org.kie.kogito.research.application.api.UnitId;
 import org.kie.kogito.research.application.api.UnitInstance;
 import org.kie.kogito.research.application.api.UnitInstanceId;
 
-public abstract class AbstractUnit<U extends UnitInstance> implements Unit {
+public abstract class AbstractUnit<I extends UnitId, U extends UnitInstance> implements Unit {
 
     private final UnitContainer container;
-    private final UnitId id;
+    private final I id;
     private final Map<UnitInstanceId, U> instances = new HashMap<>();
 
-    public AbstractUnit(UnitContainer container, UnitId id) {
+    public AbstractUnit(UnitContainer container, I id) {
         this.container = container;
         this.id = id;
     }
@@ -28,7 +28,7 @@ public abstract class AbstractUnit<U extends UnitInstance> implements Unit {
     }
 
     @Override
-    public UnitId id() {
+    public I id() {
         return id;
     }
 

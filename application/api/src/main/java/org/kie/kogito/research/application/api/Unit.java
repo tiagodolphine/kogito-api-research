@@ -1,8 +1,8 @@
 package org.kie.kogito.research.application.api;
 
 public interface Unit {
-    UnitId id();
     Application application();
+    UnitId id();
     UnitInstance createInstance(Context ctx);
     void send(Event event);
 }
