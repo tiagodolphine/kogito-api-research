@@ -17,8 +17,9 @@ public class AbstractUnitContainer<U extends Unit> implements UnitContainer {
         this.application = application;
     }
 
-    protected <T extends U> void register(T unit) {
+    protected <T extends U> T register(T unit) {
         units.put(unit.id(), unit);
+        return unit;
     }
 
     @Override

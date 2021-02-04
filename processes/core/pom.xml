@@ -12,4 +12,13 @@
 
   <artifactId>kogito-processes-core</artifactId>
 
+  <dependencies>
+    <dependency>
+      <groupId>org.kie.kogito.research</groupId>
+      <artifactId>kogito-processes-api</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+  </dependencies>
+
+
 </project>
