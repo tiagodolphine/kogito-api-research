@@ -15,6 +15,7 @@ class ProcessContainerImplTest {
 
     @Test
     public void lookup() {
+        // internal APIs
         var processContainer = new ProcessContainerImpl(null);
         var aProcess = new ProcessImpl(processContainer, SimpleProcessId.fromString("a.process"));
         var anotherProcess = new ProcessImpl(processContainer, SimpleProcessId.fromString("another.process"));
@@ -23,9 +24,8 @@ class ProcessContainerImplTest {
         processContainer.register(List.of(
                 aProcess,
                 anotherProcess,
-                thirdProcess
-        ));
-
+                thirdProcess));
+        // end of internal APIs
 
         class MyProcessVariables implements Context {
             String name;
@@ -51,6 +51,7 @@ class ProcessContainerImplTest {
 
     @Test
     public void messaging() {
+        // internal
         var messageBus = new MyMessageBus();
         var processContainer = new ProcessContainerImpl(null, messageBus);
         var aProcess = new ProcessImpl(processContainer, SimpleProcessId.fromString("a.process"), messageBus);
@@ -60,6 +61,7 @@ class ProcessContainerImplTest {
                 aProcess,
                 anotherProcess,
                 thirdProcess));
+        // end of internal
 
         class MyProcessVariables implements Context, ExecutionModel {
             String name;
