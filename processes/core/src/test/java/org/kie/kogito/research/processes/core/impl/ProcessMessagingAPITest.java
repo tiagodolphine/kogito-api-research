@@ -7,8 +7,10 @@ import org.kie.kogito.research.application.api.impl.SimpleId;
 import org.kie.kogito.research.application.core.impl.BroadcastProcessorMessageBus;
 import org.kie.kogito.research.processes.api.messages.ProcessMessages;
 
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.List;
+import java.util.concurrent.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -20,12 +22,20 @@ class ProcessMessagingAPITest {
         var messageBus = new BroadcastProcessorMessageBus();
         var processId = SimpleProcessId.fromString("my.process");
         var process = new ProcessImpl(null, processId, messageBus);
+        ExecutorService services = Executors.newCachedThreadPool();
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                process.run();
+                services.submit(this);
+            }
+        };
+        services.submit(r);
 
         // create instance via message passing
         var selfId = new SimpleId();
         var requestId = new SimpleRequestId();
         var createInstance = ProcessMessages.CreateInstance.of(requestId, processId);
-        messageBus.send(new SimpleProcessEvent(selfId, null, createInstance));
 
         // await confirmation
         var instanceCreatedFuture = messageBus.processor()
@@ -33,9 +43,13 @@ class ProcessMessagingAPITest {
                 .map(Event::payload)
                 .map(ProcessMessages.InstanceCreated.class::cast)
                 .toUni().subscribeAsCompletionStage();
-        process.run();
+
+        messageBus.send(new SimpleProcessEvent(selfId, null, createInstance));
+
         var instanceCreated = instanceCreatedFuture.get();
         assertEquals(processId, instanceCreated.processId());
         assertEquals(requestId, instanceCreated.requestId());
+
     }
+
 }
