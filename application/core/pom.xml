@@ -12,4 +12,19 @@
 
   <artifactId>kogito-application-core</artifactId>
 
+  <dependencies>
+    <dependency>
+      <groupId>org.kie.kogito.research</groupId>
+      <artifactId>kogito-application-api</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>io.smallrye.reactive</groupId>
+      <artifactId>mutiny</artifactId>
+      <version>0.13.0</version>
+    </dependency>
+
+  </dependencies>
+
 </project>

@@ -13,9 +13,9 @@ import java.util.Collection;
 public class ProcessContainerImpl extends AbstractUnitContainer<Process> implements ProcessContainer {
     private final MessageBus<ProcessEvent> messageBus;
 
-    public ProcessContainerImpl(Application application, MessageBus<ProcessEvent> messageBus) {
+    public ProcessContainerImpl(Application application, MessageBus<? extends Event> messageBus) {
         super(application);
-        this.messageBus = messageBus;
+        this.messageBus = (MessageBus<ProcessEvent>) messageBus;
     }
 
     public ProcessContainerImpl(Application application) {

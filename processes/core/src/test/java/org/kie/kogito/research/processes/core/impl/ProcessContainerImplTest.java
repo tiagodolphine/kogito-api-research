@@ -3,6 +3,7 @@ package org.kie.kogito.research.processes.core.impl;
 import io.smallrye.mutiny.operators.multi.processors.BroadcastProcessor;
 import org.junit.jupiter.api.Test;
 import org.kie.kogito.research.application.api.*;
+import org.kie.kogito.research.application.core.impl.BroadcastProcessorMessageBus;
 import org.kie.kogito.research.processes.api.ProcessEvent;
 
 import java.util.List;
@@ -35,24 +36,10 @@ class ProcessContainerImplTest {
         var instance = p.createInstance(new MyProcessVariables());
     }
 
-    static class MyMessageBus implements MessageBus<ProcessEvent> {
-        BroadcastProcessor<ProcessEvent> processor = BroadcastProcessor.create();
-
-        @Override
-        public void send(ProcessEvent event) {
-            processor.onNext(event);
-        }
-
-        @Override
-        public void subscribe(Consumer<ProcessEvent> consumer) {
-            processor.subscribe().with(consumer);
-        }
-    }
-
     @Test
     public void messaging() {
         // internal
-        var messageBus = new MyMessageBus();
+        var messageBus = new BroadcastProcessorMessageBus();
         var processContainer = new ProcessContainerImpl(null, messageBus);
         var aProcess = new ProcessImpl(processContainer, SimpleProcessId.fromString("a.process"), messageBus);
         var anotherProcess = new ProcessImpl(processContainer, SimpleProcessId.fromString("another.process"), messageBus);
@@ -94,10 +81,12 @@ class ProcessContainerImplTest {
         assertNull(ctx2.event);
 
         messageBus.send(event);
+        // send is async
 
         assertNull(ctx1.event);
         assertNull(ctx2.event);
 
+        // simulate scheduler, dequeue messages
         a.run();
         third.run();
 

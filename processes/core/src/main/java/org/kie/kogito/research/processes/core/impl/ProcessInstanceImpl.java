@@ -47,7 +47,12 @@ public class ProcessInstanceImpl extends AbstractUnitInstance implements Process
     public void run() {
         for (Event event = events.poll(); event != null; event = events.poll()) {
             executionModel.onEvent(event);
+            receive(event);
         }
+    }
+
+    protected void receive(Event event) {
+        // internal handling logic
     }
 
     protected void enqueue(Event event) {

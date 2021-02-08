@@ -16,9 +16,9 @@ public class ProcessImpl extends AbstractUnit<ProcessId, ProcessInstance> implem
         this.messageBus = new LambdaMessageBus<>(this::send);
     }
 
-    public ProcessImpl(ProcessContainerImpl processContainer, SimpleProcessId id, MessageBus<ProcessEvent> messageBus) {
+    public ProcessImpl(ProcessContainerImpl processContainer, SimpleProcessId id, MessageBus<? extends Event> messageBus) {
         super(processContainer, id);
-        this.messageBus = messageBus;
+        this.messageBus = (MessageBus<ProcessEvent>) messageBus;
     }
 
     @Override
