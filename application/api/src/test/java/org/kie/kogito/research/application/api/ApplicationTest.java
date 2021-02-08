@@ -75,6 +75,11 @@ class ApplicationTest {
         public MyUnitInstance(MyUnit myUnit, Context context) {
             super(new SimpleUnitInstanceId(), myUnit, context);
         }
+
+        @Override
+        public void run() {
+
+        }
     }
 
 
@@ -99,6 +104,11 @@ class ApplicationTest {
     static class AnotherUnitInstance extends AbstractUnitInstance {
         public AnotherUnitInstance(AnotherUnit myUnit, Context ctx) {
             super(new SimpleUnitInstanceId(), myUnit, ctx);
+        }
+
+        @Override
+        public void run() {
+
         }
     }
 

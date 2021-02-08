@@ -118,6 +118,11 @@ class MessagingTest {
         public MyUnitInstance(MyUnit myUnit, Context context) {
             super(new SimpleUnitInstanceId(), myUnit, context);
         }
+
+        @Override
+        public void run() {
+
+        }
     }
 
 
@@ -151,6 +156,11 @@ class MessagingTest {
                                        String.format("Message from %s -- %s", id(), unit().id())));
             }
             super.send(event);
+        }
+
+        @Override
+        public void run() {
+
         }
     }
 

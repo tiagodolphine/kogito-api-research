@@ -5,4 +5,5 @@ public interface UnitInstance {
     Unit unit();
     Context context();
     MessageBus<? extends Event> messageBus();
+    void run();
 }

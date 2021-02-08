@@ -4,7 +4,8 @@ import org.kie.kogito.research.application.api.MessageBus;
 import org.kie.kogito.research.application.api.UnitInstance;
 
 public interface ProcessInstance extends UnitInstance {
-    ProcessInstanceId id();
-    Process unit();
-    MessageBus<ProcessEvent> messageBus(); // send(Event)
+    @Override ProcessInstanceId id();
+    @Override Process unit();
+    @Override MessageBus<ProcessEvent> messageBus(); // send(Event)
+    @Override void run();
 }

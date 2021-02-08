@@ -87,10 +87,21 @@ class ProcessContainerImplTest {
 
 
         var event = new SimpleProcessEvent(null, SimpleProcessId.fromString("a.process"), "Payload");
+        a.run();
+        third.run();
+
+        assertNull(ctx1.event);
+        assertNull(ctx2.event);
+
         messageBus.send(event);
+
+        assertNull(ctx1.event);
+        assertNull(ctx2.event);
+
+        a.run();
+        third.run();
 
         assertEquals(event, ctx1.event);
         assertNull(ctx2.event);
-
     }
 }
