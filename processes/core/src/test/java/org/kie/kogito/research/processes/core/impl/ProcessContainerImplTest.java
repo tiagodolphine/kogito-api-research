@@ -1,13 +1,12 @@
 package org.kie.kogito.research.processes.core.impl;
 
-import io.smallrye.mutiny.operators.multi.processors.BroadcastProcessor;
 import org.junit.jupiter.api.Test;
-import org.kie.kogito.research.application.api.*;
+import org.kie.kogito.research.application.api.Context;
+import org.kie.kogito.research.application.api.Event;
+import org.kie.kogito.research.application.api.ExecutionModel;
 import org.kie.kogito.research.application.core.impl.BroadcastProcessorMessageBus;
-import org.kie.kogito.research.processes.api.ProcessEvent;
 
 import java.util.List;
-import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;

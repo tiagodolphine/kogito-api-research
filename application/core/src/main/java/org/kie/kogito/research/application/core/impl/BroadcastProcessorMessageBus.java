@@ -9,6 +9,10 @@ import java.util.function.Consumer;
 public class BroadcastProcessorMessageBus implements MessageBus<Event> {
     BroadcastProcessor<Event> processor = BroadcastProcessor.create();
 
+    public BroadcastProcessor<Event> processor() {
+        return processor;
+    }
+
     @Override
     public void send(Event event) {
         processor.onNext(event);

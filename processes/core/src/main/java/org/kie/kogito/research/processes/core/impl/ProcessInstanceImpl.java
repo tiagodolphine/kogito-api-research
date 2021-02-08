@@ -19,13 +19,12 @@ public class ProcessInstanceImpl extends AbstractUnitInstance implements Process
 
     public ProcessInstanceImpl(ProcessInstanceId id, ProcessImpl unit, Context context) {
         super(id, unit, context);
+        this.events = new ArrayDeque<>();
+        unit().messageBus().subscribe(this::enqueue);
         if (context instanceof ExecutionModel) {
             this.executionModel = (ExecutionModel) context;
-            this.events = new ArrayDeque<>();
-            unit().messageBus().subscribe(this::enqueue);
         } else {
             this.executionModel = null;
-            this.events = null;
         }
     }
 
