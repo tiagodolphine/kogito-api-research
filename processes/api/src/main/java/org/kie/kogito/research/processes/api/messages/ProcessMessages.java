@@ -1,9 +1,11 @@
 package org.kie.kogito.research.processes.api.messages;
 
+import org.kie.kogito.research.application.api.Context;
 import org.kie.kogito.research.application.api.SimpleRequestId;
 import org.kie.kogito.research.application.api.messages.RequestId;
 import org.kie.kogito.research.processes.api.ProcessId;
 import org.kie.kogito.research.processes.api.ProcessInstanceId;
+import org.kie.kogito.research.processes.api.SimpleProcessContext;
 
 import java.util.Optional;
 
@@ -11,16 +13,31 @@ public class ProcessMessages {
     // Requests
 
     public static class CreateInstance extends ProcessMessage implements Request {
+        private Context context;
+
         public static CreateInstance of(ProcessId processId) {
-            return new CreateInstance(new SimpleRequestId(), processId);
+            return new CreateInstance(new SimpleRequestId(), processId, new SimpleProcessContext());
+        }
+
+        public static CreateInstance of(ProcessId processId, Context context) {
+            return new CreateInstance(new SimpleRequestId(), processId, context);
         }
 
         public static CreateInstance of(RequestId requestId, ProcessId processId) {
-            return new CreateInstance(requestId, processId);
+            return new CreateInstance(requestId, processId, new SimpleProcessContext());
         }
 
-        private CreateInstance(RequestId requestId, ProcessId processId) {
+        public static CreateInstance of(RequestId requestId, ProcessId processId, Context context) {
+            return new CreateInstance(requestId, processId, context);
+        }
+
+        private CreateInstance(RequestId requestId, ProcessId processId, Context context) {
             super(requestId, processId);
+            this.context = context;
+        }
+
+        public Context context() {
+            return context;
         }
     }
 

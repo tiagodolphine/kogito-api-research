@@ -8,7 +8,6 @@ import org.kie.kogito.research.processes.api.*;
 import org.kie.kogito.research.processes.api.Process;
 import org.kie.kogito.research.processes.api.messages.ProcessMessages;
 
-import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ExecutorService;
@@ -61,7 +60,7 @@ public class ProcessImpl extends AbstractUnit<ProcessId, ProcessInstance> implem
         if (event instanceof ProcessEvent) {
             ProcessEvent pEvent = (ProcessEvent) event;
             pEvent.payload().as(ProcessMessages.CreateInstance.class).ifPresent(e ->
-                createInstance0(e.requestId(), event.senderId(), new SimpleProcessContext()));
+                createInstance0(e.requestId(), event.senderId(), e.context()));
         }
     }
 

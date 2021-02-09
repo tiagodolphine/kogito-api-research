@@ -40,24 +40,24 @@ class ProcessMessagingAPITest {
         assertEquals(createInstance.requestId(), instanceCreated.requestId());
         assertEquals(processId, instanceCreated.processId());
 
+        // listen for process completion
+        var instanceCompletedListener =
+                messages.expect(ProcessMessages.InstanceCompleted.class);
+
         var processInstanceId = instanceCreated.processInstanceId();
 
         // start instance
         var startInstance =
                 ProcessMessages.StartInstance.of(processId, processInstanceId);
-
-        // prepare req
-        var instanceStartReq = messages.send(startInstance);
-        // listen for process completion
-        var instanceCompletedAwait = messages.expect(ProcessMessages.InstanceCompleted.class);
-
-        var instanceStarted = instanceStartReq.expect(ProcessMessages.InstanceStarted.class).get();
+        var instanceStarted =
+                messages.send(startInstance)
+                        .expect(ProcessMessages.InstanceStarted.class).get();
 
         assertEquals(startInstance.requestId(), instanceStarted.requestId());
         assertEquals(processId, instanceStarted.processId());
         assertEquals(processInstanceId, instanceStarted.processInstanceId());
 
-        var instanceCompleted = instanceCompletedAwait.get();
+        var instanceCompleted = instanceCompletedListener.get();
 
         assertEquals(processId, instanceCompleted.processId());
         assertEquals(processInstanceId, instanceCompleted.processInstanceId());
