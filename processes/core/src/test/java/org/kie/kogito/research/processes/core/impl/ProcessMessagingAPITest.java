@@ -7,6 +7,7 @@ import org.kie.kogito.research.application.api.SimpleRequestId;
 import org.kie.kogito.research.application.api.impl.SimpleId;
 import org.kie.kogito.research.application.core.impl.BroadcastProcessorMessageBus;
 import org.kie.kogito.research.processes.api.ProcessInstance;
+import org.kie.kogito.research.processes.api.ProcessInstanceId;
 import org.kie.kogito.research.processes.api.messages.ProcessMessages;
 
 import java.util.concurrent.CompletableFuture;
@@ -26,48 +27,39 @@ class ProcessMessagingAPITest {
         var processId = SimpleProcessId.fromString("my.process");
         var process = new ProcessImpl(null, processId, messageBus, service);
 
+        // a test utility that wraps the bus to await responses
+        var messages = new RequestResponse(messageBus);
+
         // create instance via message passing
-        var messages = new RequestResponse(messageBus.processor());
         var createInstance = ProcessMessages.CreateInstance.of(processId);
         var instanceCreated =
                 messages.send(createInstance)
                         .expect(ProcessMessages.InstanceCreated.class)
                         .get();
 
-        assertEquals(processId, instanceCreated.processId());
         assertEquals(createInstance.requestId(), instanceCreated.requestId());
+        assertEquals(processId, instanceCreated.processId());
 
+        var processInstanceId = instanceCreated.processInstanceId();
         var startInstance =
-                ProcessMessages.StartInstance.of(processId, instanceCreated.processInstanceId());
-
-        var instanceCompletedFuture =
-                messages.expect(ProcessMessages.InstanceCompleted.class);
+                ProcessMessages.StartInstance.of(processId, processInstanceId);
 
         var instanceStarted = messages
                 .send(startInstance)
                 .expect(ProcessMessages.InstanceStarted.class)
                 .get();
 
-        instanceCompletedFuture.get();
-
+        assertEquals(startInstance.requestId(), instanceStarted.requestId());
         assertEquals(processId, instanceStarted.processId());
-        assertEquals(instanceCreated.processInstanceId(), instanceStarted.processInstanceId());
+        assertEquals(processInstanceId, instanceStarted.processInstanceId());
 
-    }
+        // this is a completion message; it is not a response to a request
+        var instanceCompleted =
+                messages.expect(ProcessMessages.InstanceCompleted.class).get();
 
-    private <T> CompletableFuture<T> ask(
-            BroadcastProcessorMessageBus messageBus,
-            Id selfId,
-            ProcessMessages.Message message,
-            Class<T> expectedResponse) {
-        var instanceCreatedFuture = messageBus.processor()
-                .filter(e -> e.targetId() == selfId)
-                .map(Event::payload)
-                .map(expectedResponse::cast)
-                .toUni().subscribeAsCompletionStage();
+        assertEquals(processId, instanceCompleted.processId());
+        assertEquals(processInstanceId, instanceCompleted.processInstanceId());
 
-        messageBus.send(new SimpleProcessEvent(selfId, null, message));
-        return instanceCreatedFuture;
     }
 
 }

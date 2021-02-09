@@ -16,8 +16,8 @@ public class RequestResponse {
     private final Multi<ProcessMessages.Message> messages;
     private BroadcastProcessor<Event> processor;
 
-    RequestResponse(BroadcastProcessor<Event> processor) {
-        this.processor = processor;
+    RequestResponse(BroadcastProcessorMessageBus messageBus) {
+        this.processor = messageBus.processor();
         this.self = new SimpleId();
         this.messages =
                 processor.filter(e -> e.targetId() == self)
