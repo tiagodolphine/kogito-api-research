@@ -1,20 +1,37 @@
 package org.kie.kogito.research.processes.core.impl;
 
-import org.kie.kogito.research.application.api.*;
-import org.kie.kogito.research.application.api.impl.AbstractUnitInstance;
-import org.kie.kogito.research.application.api.messages.RequestId;
-import org.kie.kogito.research.processes.api.*;
-import org.kie.kogito.research.processes.api.Process;
-import org.kie.kogito.research.processes.api.messages.ProcessMessages;
-
-import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ExecutorService;
 
-public class ProcessInstanceImpl extends AbstractUnitInstance implements ProcessInstance {
-    private final ExecutionModel executionModel;
+import org.kie.kogito.research.application.api.Context;
+import org.kie.kogito.research.application.api.Event;
+import org.kie.kogito.research.application.api.ExecutionModel;
+import org.kie.kogito.research.application.api.Id;
+import org.kie.kogito.research.application.api.MessageBus;
+import org.kie.kogito.research.application.api.SimpleRequestId;
+import org.kie.kogito.research.application.api.impl.AbstractUnitInstance;
+import org.kie.kogito.research.application.api.messages.RequestId;
+import org.kie.kogito.research.application.core.impl.GlobalMessageBusHolder;
+import org.kie.kogito.research.processes.api.Process;
+import org.kie.kogito.research.processes.api.ProcessEvent;
+import org.kie.kogito.research.processes.api.ProcessInstance;
+import org.kie.kogito.research.processes.api.ProcessInstanceId;
+import org.kie.kogito.research.processes.api.messages.ProcessMessages;
+import org.kie.kogito.research.processes.api.runtime.Triggerable;
+import org.kie.kogito.research.processes.core.impl.runtime.StartNodeInstance;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class ProcessInstanceImpl extends AbstractUnitInstance implements ProcessInstance,
+                                                                         Triggerable {
+
+    private final Optional<ExecutionModel> executionModel;
     private final Deque<Event> events;
+    private StartNodeInstance start;
+    private MessageBus<Event> messageBus = GlobalMessageBusHolder.messageBus();
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final Id senderId;
 
     public ProcessInstanceImpl(RequestId requestId, Id senderId, ProcessInstanceId id, ProcessImpl unit, Context context, ExecutorService service) {
@@ -26,11 +43,9 @@ public class ProcessInstanceImpl extends AbstractUnitInstance implements Process
 
         this.senderId = senderId;
 
-        if (context instanceof ExecutionModel) {
-            this.executionModel = (ExecutionModel) context;
-        } else {
-            this.executionModel = null;
-        }
+        executionModel = Optional.ofNullable(context)
+                .filter(ExecutionModel.class::isInstance)
+                .map(ExecutionModel.class::cast);
 
         service.submit(new EventLoopRunner(this::run, service));
     }
@@ -46,8 +61,9 @@ public class ProcessInstanceImpl extends AbstractUnitInstance implements Process
     }
 
     @Override
-    public MessageBus<ProcessEvent> messageBus() {
-        return (MessageBus<ProcessEvent>) unit().messageBus();
+    public MessageBus<Event> messageBus() {
+//        return (MessageBus<ProcessEvent>) unit().messageBus();
+        return messageBus;
     }
 
     public void run() {
@@ -57,7 +73,7 @@ public class ProcessInstanceImpl extends AbstractUnitInstance implements Process
     }
 
     protected void receive(Event event) {
-        if (executionModel != null) executionModel.onEvent(event);
+        executionModel.ifPresent(e -> e.onEvent(event));
 
         // internal handling logic
         if (event instanceof ProcessEvent) {
@@ -68,6 +84,9 @@ public class ProcessInstanceImpl extends AbstractUnitInstance implements Process
                                 ProcessMessages.InstanceStarted.of(e.requestId(), unit().id(), id())));
                         messageBus().send(new SimpleProcessEvent(this.id(), this.id(),
                                 InternalProcessMessages.CompleteProcessInstance.of(new SimpleRequestId(), unit().id(), id())));
+
+                        //trigger next node
+                        trigger();
                     });
             pEvent.payload().as(InternalProcessMessages.CompleteProcessInstance.class)
                     .filter(e -> e.processInstanceId().equals(this.id()))
@@ -85,4 +104,18 @@ public class ProcessInstanceImpl extends AbstractUnitInstance implements Process
         }
     }
 
+    @Override
+    public void trigger() {
+        logger.info("Trigger Process Instance {}", id());
+        if(start == null){
+            return;
+        }
+        var triggerInstance = ProcessMessages.TriggerInstance.of(new SimpleRequestId(), this.unit().id(), id(), start.id());
+        Event event = new SimpleNodeEvent(id(), start.id(), triggerInstance);
+        messageBus.send(event);
+    }
+
+    public void setStart(StartNodeInstance start) {
+        this.start = start;
+    }
 }

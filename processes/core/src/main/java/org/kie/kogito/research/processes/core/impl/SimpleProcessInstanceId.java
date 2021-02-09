@@ -3,6 +3,7 @@ package org.kie.kogito.research.processes.core.impl;
 import org.kie.kogito.research.processes.api.ProcessInstanceId;
 
 import java.util.Objects;
+import java.util.StringJoiner;
 import java.util.UUID;
 
 public class SimpleProcessInstanceId implements ProcessInstanceId {
@@ -35,5 +36,10 @@ public class SimpleProcessInstanceId implements ProcessInstanceId {
     @Override
     public int hashCode() {
         return Objects.hash(value);
+    }
+
+    @Override
+    public String toString() {
+        return value;
     }
 }

@@ -3,6 +3,7 @@ package org.kie.kogito.research.processes.api.messages;
 import org.kie.kogito.research.application.api.Context;
 import org.kie.kogito.research.application.api.SimpleRequestId;
 import org.kie.kogito.research.application.api.messages.RequestId;
+import org.kie.kogito.research.processes.api.NodeInstanceId;
 import org.kie.kogito.research.processes.api.ProcessId;
 import org.kie.kogito.research.processes.api.ProcessInstanceId;
 import org.kie.kogito.research.processes.api.SimpleProcessContext;
@@ -52,6 +53,17 @@ public class ProcessMessages {
 
         private StartInstance(RequestId requestId, ProcessId processId, ProcessInstanceId processInstanceId) {
             super(requestId, processId, processInstanceId);
+        }
+    }
+
+    public static class TriggerInstance extends NodeInstanceMessage implements Request{
+        public static TriggerInstance of(RequestId requestId, ProcessId processId,
+                                         ProcessInstanceId processInstanceId, NodeInstanceId nodeInstanceId) {
+            return new TriggerInstance(requestId, processId, processInstanceId, nodeInstanceId);
+        }
+        private TriggerInstance(RequestId requestId, ProcessId processId, ProcessInstanceId processInstanceId,
+                                NodeInstanceId nodeInstanceId) {
+            super(requestId, processId, processInstanceId, nodeInstanceId);
         }
     }
 
@@ -130,6 +142,16 @@ public class ProcessMessages {
 
         public ProcessInstanceId processInstanceId() {
             return processInstanceId;
+        }
+    }
+
+    private static abstract class NodeInstanceMessage extends ProcessInstanceMessage {
+        private final NodeInstanceId nodeInstanceId;
+
+        protected NodeInstanceMessage(RequestId requestId, ProcessId processId, ProcessInstanceId processInstanceId,
+                                      NodeInstanceId nodeInstanceId) {
+            super(requestId, processId, processInstanceId);
+            this.nodeInstanceId = nodeInstanceId;
         }
     }
 }
