@@ -32,8 +32,9 @@ class ProcessMessagingAPITest {
 
         // create instance via message passing
         var createInstance = ProcessMessages.CreateInstance.of(processId);
+        var createInstanceReq = messages.send(createInstance);
         var instanceCreated =
-                messages.send(createInstance)
+                createInstanceReq
                         .expect(ProcessMessages.InstanceCreated.class)
                         .get();
 
@@ -44,22 +45,38 @@ class ProcessMessagingAPITest {
         var startInstance =
                 ProcessMessages.StartInstance.of(processId, processInstanceId);
 
-        var instanceStarted = messages
-                .send(startInstance)
-                .expect(ProcessMessages.InstanceStarted.class)
-                .get();
+
+        // this is a completion message; it is not a response to a request
+        var instanceStartReq = messages.send(startInstance);
+        var instanceCompletedAwait = messages.expect(ProcessMessages.InstanceCompleted.class);
+
+        var instanceStarted = instanceStartReq.expect(ProcessMessages.InstanceStarted.class).get();
 
         assertEquals(startInstance.requestId(), instanceStarted.requestId());
         assertEquals(processId, instanceStarted.processId());
         assertEquals(processInstanceId, instanceStarted.processInstanceId());
 
-        // this is a completion message; it is not a response to a request
-        var instanceCompleted =
-                messages.expect(ProcessMessages.InstanceCompleted.class).get();
+
+        var instanceCompleted = instanceCompletedAwait.get();
 
         assertEquals(processId, instanceCompleted.processId());
         assertEquals(processInstanceId, instanceCompleted.processInstanceId());
 
+    }
+
+    @Test
+    public void blockingCreateInstance() throws ExecutionException, InterruptedException {
+        // set up the system (internal APIs)
+        ExecutorService service = Executors.newCachedThreadPool();
+        var messageBus = new BroadcastProcessorMessageBus();
+        var processId = SimpleProcessId.fromString("my.process");
+        var process = new ProcessImpl(null, processId, messageBus, service);
+
+        // a test utility that wraps the bus to await responses
+        var api = new BlockingRequestResponse(messageBus);
+        var instanceId = api.createInstance(processId);
+        api.startInstance(processId, instanceId);
+        api.awaitTermination();
     }
 
 }
