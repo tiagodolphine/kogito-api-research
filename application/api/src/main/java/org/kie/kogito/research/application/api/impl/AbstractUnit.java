@@ -1,5 +1,6 @@
 package org.kie.kogito.research.application.api.impl;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,6 +35,10 @@ public abstract class AbstractUnit<I extends UnitId, U extends UnitInstance> imp
     @Override
     public MessageBus<? extends Event> messageBus() {
         return this::send;
+    }
+
+    public Collection<U> instances() {
+        return instances.values();
     }
 
     public void send(Event event) {
