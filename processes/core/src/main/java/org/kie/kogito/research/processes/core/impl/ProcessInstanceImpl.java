@@ -63,9 +63,12 @@ public class ProcessInstanceImpl extends AbstractUnitInstance implements Process
         if (event instanceof ProcessEvent) {
             ProcessEvent pEvent = (ProcessEvent) event;
             pEvent.payload().as(ProcessMessages.StartInstance.class)
-                    .ifPresent(e ->
-                            messageBus().send(new SimpleProcessEvent(this.id(), this.id(),
-                                    InternalProcessMessages.CompleteProcessInstance.of(new SimpleRequestId(), unit().id(), id()))));
+                    .ifPresent(e -> {
+                        messageBus().send(new SimpleProcessEvent(this.id(), pEvent.senderId(),
+                                ProcessMessages.InstanceStarted.of(e.requestId(), unit().id(), id())));
+                        messageBus().send(new SimpleProcessEvent(this.id(), this.id(),
+                                InternalProcessMessages.CompleteProcessInstance.of(new SimpleRequestId(), unit().id(), id())));
+                    });
             pEvent.payload().as(InternalProcessMessages.CompleteProcessInstance.class)
                     .filter(e -> e.processInstanceId().equals(this.id()))
                     .ifPresent(e ->

@@ -27,8 +27,8 @@ class ProcessMessagingAPITest {
         var process = new ProcessImpl(null, processId, messageBus, service);
 
         // create instance via message passing
+        var messages = new RequestResponse(messageBus.processor());
         var createInstance = ProcessMessages.CreateInstance.of(processId);
-        var messages = new RequestResponse(messageBus);
         var instanceCreated =
                 messages.send(createInstance)
                         .expect(ProcessMessages.InstanceCreated.class)
@@ -40,13 +40,18 @@ class ProcessMessagingAPITest {
         var startInstance =
                 ProcessMessages.StartInstance.of(processId, instanceCreated.processInstanceId());
 
-        var instanceCompleted = messages
+        var instanceCompletedFuture =
+                messages.expect(ProcessMessages.InstanceCompleted.class);
+
+        var instanceStarted = messages
                 .send(startInstance)
-                .expect(ProcessMessages.InstanceCompleted.class)
+                .expect(ProcessMessages.InstanceStarted.class)
                 .get();
 
-        assertEquals(processId, instanceCompleted.processId());
-        assertEquals(instanceCreated.processInstanceId(), instanceCompleted.processInstanceId());
+        instanceCompletedFuture.get();
+
+        assertEquals(processId, instanceStarted.processId());
+        assertEquals(instanceCreated.processInstanceId(), instanceStarted.processInstanceId());
 
     }
 
