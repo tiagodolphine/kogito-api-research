@@ -20,7 +20,7 @@ class ConcurrencySchedulerTest {
 
     @Test
     public void scheduleTest() throws InterruptedException {
-        int total = 5 + 3;//total number of commands to be added
+        int total = 1000 + 3;//total number of commands to be added
         Scheduler scheduler = Scheduler.get(new LinkedCommandQueueImpl()).init();
         //Scheduler scheduler = Scheduler.get(new DelegateCommandQueue()).init();
         ExecutorService executor = Executors.newFixedThreadPool(4);
@@ -28,6 +28,7 @@ class ConcurrencySchedulerTest {
 
         StopWatch watch = new StopWatch();
         watch.start();
+
         //adding command in the main thread
         scheduler.add(RunnableCommand.of(() -> {
             LOGGER.debug("Executing - START");
@@ -35,6 +36,7 @@ class ConcurrencySchedulerTest {
             return null;
         }));
 
+        //Test the Timer Thread to insert a command in the queue
         scheduler.schedule(RunnableCommand.of(() -> {
             LOGGER.debug("Executing - SCHEDULED");
             latch.countDown();
