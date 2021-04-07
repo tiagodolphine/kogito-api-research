@@ -19,6 +19,7 @@
     <module>application</module>
     <module>processes</module>
     <module>rules</module>
+    <module>scheduler</module>
   </modules>
 
   <dependencies>
